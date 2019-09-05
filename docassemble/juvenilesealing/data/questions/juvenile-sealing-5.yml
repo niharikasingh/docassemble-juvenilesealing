@@ -35,30 +35,36 @@ comment: |
   questions are about the applicant?
 objects:
   - applicant: Individual
-  - ineligibility_reasons: DAObject
+#  - ineligibility_reasons: DAObject
+#  - ineligibility_reasons.wants_to_continue: DAObject
+#  - ineligibility_reasons.open_case: DAObject
+#  - ineligibility_reasons.probation: DAObject
+#  - ineligibility_reasons.juvenile_case_ma: DAObject
+#  - ineligibility_reasons.juvenile_custody_usa: DAObject
+#  - ineligibility_reasons.juvenile_other_state: DAObject
+#  - ineligibility_reasons.convicted_states: DAObject
+#  - ineligibility_reasons.convicted_federal: DAObject
+#  - ineligibility_reasons.incarcerated: DAObject
 ---
 code: |
   # ### Creating reasons ####
-  start = "Sorry, but because you "
+  start = "you "
   years = " in the past three years**"
-  end = " you're not eligible to get your juvenile record sealed."
 
   ineligibility_reasons.wants_to_continue = ""
-  ineligibility_reasons.open_case = start + "**have an open case**" + end
-  ineligibility_reasons.probation = start + "**are on probation**" + end
-  ineligibility_reasons.juvenile_case_ma = start + "**had a juvenile case in Massachusetts" + years + end
-  ineligibility_reasons.juvenile_custody_usa = start + "**have been in juvenile custody in Massachusetts" + years + end
-  ineligibility_reasons.juvenile_other_state = start + "**found to be delinquent in another state" + years + end
-  ineligibility_reasons.convicted_states = start + "**were convicted" + years + end
-  ineligibility_reasons.convicted_federal = start + "**were convicted" + years + end
-  ineligibility_reasons.incarcerated = start + "**were incarcerated" + years + end
+  ineligibility_reasons.open_case = start + "**have an open case**"
+  ineligibility_reasons.probation = start + "**are on probation**"
+  ineligibility_reasons.juvenile_case_ma = start + "**had a juvenile case in Massachusetts" + years
+  ineligibility_reasons.juvenile_custody_usa = start + "**have been in juvenile custody in Massachusetts" + years
+  ineligibility_reasons.juvenile_other_state = start + "**found to be delinquent in another state" + years
+  ineligibility_reasons.convicted_states = start + "**were convicted" + years
+  ineligibility_reasons.convicted_federal = start + "**were convicted" + years
+  ineligibility_reasons.incarcerated = start + "**were incarcerated" + years
 
 ---
 mandatory: True
 id: flow
 code: |
-
-  reason = ''
   dockets_link = 'TODO'
 
   # How to make sure a pro se user sees the warnings?
@@ -69,13 +75,21 @@ code: |
     if (url_args['dockets'] == 'needed'):
       needs_dockets = True
 
-  reason = ineligibility_reasons.open_case
-  if (has_NON_probation_open_cases == 'True'): sorry
+  reason = ''
+  reasons = []
+
+  if (has_NON_probation_open_cases == 'True'):
+    #reasons.push(reasons, ineligibility_reasons.open_case, reason_sandwich)
+    #reason = get_ineligibility_text(reasons)
+    sorry
   elif (has_NON_probation_open_cases == 'unsure'): get_records
 
-  reason = ineligibility_reasons.probation
-  if (is_on_probation == 'True'): sorry
+  if (is_on_probation == 'True'):
+    #reasons.push(ineligibility_reasons.probation)
+    sorry
   elif (is_on_probation == 'unsure'): get_records
+
+  reasons = []
 
   reason = ineligibility_reasons.juvenile_case_ma
   if (juvenile_cases_in_past_3_years_ma == 'True'): sorry
@@ -89,6 +103,8 @@ code: |
   if (juvenile_cases_in_past_3_years_other_state == 'True'):
     if (juvenile_delinquency_in_other_state_in_past_3_years == 'True'): sorry
     elif (juvenile_delinquency_in_other_state_in_past_3_years == 'unsure'): get_records
+
+  reasons = []
 
   reason = ineligibility_reasons.convicted_states
   if (convicted_in_past_3_years_states == 'True'): sorry
@@ -387,5 +403,36 @@ buttons:
 ---
 code: |
 
-  def log_me(message):
+  def log_me (message):
     log(message, 'console')
+comment: |
+  def get_ineligibility_text (existing_reasons, new_reason):
+    reason_sandwich = {
+      pre: "Sorry, but because ",
+      post: " you're not eligible to get your juvenile record sealed."
+    }
+    sandwich = reason_sandwich
+
+    existing_reasons.push(new_reason)
+    console.log(all_reasons)
+    result = ""
+    if (false):#(existing_reasons.length == 0):
+      if (not new_reason == ""):
+        result = sandwich[pre] + new_reason + sandwich[post]
+    elif (false):# (existing_reasons.length == 1):
+      if (new_reason == ""):
+        result = sandwich[pre] + existing_reasons[0] + sandwich[post]
+      else:
+        result = sandwich[pre] + existing_reasons[0] + " and " + new_reason + sandwich[post]
+    elif (false):# (existing_reasons.length == 2):
+      if (new_reason == ""):
+        result = pre + new_reason + " and " + end
+      else:
+        result = None
+    return result
+  # Ends get_ineligibility_text()
+  
+  def make_two_reason_text (reasons, sandwich):
+    result = pre + existing_reasons[0] + " and " + new_reason + end
+    return result
+---
