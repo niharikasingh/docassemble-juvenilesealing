@@ -35,16 +35,7 @@ comment: |
   questions are about the applicant?
 objects:
   - applicant: Individual
-#  - ineligibility_reasons: DAObject
-#  - ineligibility_reasons.wants_to_continue: DAObject
-#  - ineligibility_reasons.open_case: DAObject
-#  - ineligibility_reasons.probation: DAObject
-#  - ineligibility_reasons.juvenile_case_ma: DAObject
-#  - ineligibility_reasons.juvenile_custody_usa: DAObject
-#  - ineligibility_reasons.juvenile_other_state: DAObject
-#  - ineligibility_reasons.convicted_states: DAObject
-#  - ineligibility_reasons.convicted_federal: DAObject
-#  - ineligibility_reasons.incarcerated: DAObject
+  - ineligibility_reasons: DAObject
 ---
 code: |
   # ### Creating reasons ####
@@ -54,7 +45,7 @@ code: |
   ineligibility_reasons.wants_to_continue = ""
   ineligibility_reasons.open_case = start + "**have an open case**"
   ineligibility_reasons.probation = start + "**are on probation**"
-  ineligibility_reasons.juvenile_case_ma = start + "**had a juvenile case in Massachusetts" + years
+  ineligibility_reasons.juvenile_case_ma = start + "**had an open juvenile case in Massachusetts" + years
   ineligibility_reasons.juvenile_custody_usa = start + "**have been in juvenile custody in Massachusetts" + years
   ineligibility_reasons.juvenile_other_state = start + "**found to be delinquent in another state" + years
   ineligibility_reasons.convicted_states = start + "**were convicted" + years
@@ -78,12 +69,14 @@ code: |
   reason = ''
   reasons = []
 
+  reason = ineligibility_reasons.open_case
   if (has_NON_probation_open_cases == 'True'):
     #reasons.push(reasons, ineligibility_reasons.open_case, reason_sandwich)
     #reason = get_ineligibility_text(reasons)
     sorry
   elif (has_NON_probation_open_cases == 'unsure'): get_records
 
+  reason = ineligibility_reasons.probation
   if (is_on_probation == 'True'):
     #reasons.push(ineligibility_reasons.probation)
     sorry
